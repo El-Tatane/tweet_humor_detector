@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  progr_extra_stat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: ${CONTAINER_NAME}
+
+    ports:
+      - "${JUPYTER_PORT}:8888"
+      - "${SSH_PORT}:22"
+    volumes:
+      - ${PROJECT_PATH}:/app/
+      - ${DATA_PATH}:/data/
+    env_file:
+      - .env
