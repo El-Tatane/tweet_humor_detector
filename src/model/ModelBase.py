@@ -4,9 +4,9 @@ class ModelBase:
         pass
 
 
-    def fit(self):
+    def fit(self, X, y):
         raise NotImplementedError()
 
 
-    def predict(self):
+    def predict(self, X):
         raise NotImplementedError()
