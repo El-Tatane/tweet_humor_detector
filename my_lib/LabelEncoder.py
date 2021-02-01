@@ -20,6 +20,13 @@ class LabelEncoder:
             array_like_cp[idx] = tmp_list.index(value)
         return array_like_cp
 
+    def decode(self, int_list):
+        raise NotImplementedError
+        # a finir
+        if isinstance(int_list, int):
+            int_list = [int_list]
 
-    def decode(self):
-        raise NotImplementedError()
+        res = []
+
+        for word in int_list:
+            res.append()

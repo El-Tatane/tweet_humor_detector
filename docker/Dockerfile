@@ -14,8 +14,8 @@ RUN python3 -m pip install --upgrade pip && \
     python3 -m pip install --no-cache-dir -r /tmp/requirements.txt
 
 # tmp dir
-RUN mkdir -p /app/src
-RUN ln -s /app/src /usr/lib/python3/dist-packages/my_lib
+RUN mkdir -p /app/my_lib
+RUN ln -s /app/my_lib /usr/lib/python3/dist-packages/my_lib
 
 # Fix encoding to avoid problem
 RUN locale-gen en_US.UTF-8

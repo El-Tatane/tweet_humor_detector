@@ -1,4 +1,4 @@
-from ModelBase import ModelBase
+from .ModelBase import ModelBase
 from sklearn.svm import SVC
 
 
@@ -14,3 +14,6 @@ class SVM(ModelBase):
 
     def predict(self, X):
         return self.model.predict(X)
+
+    def score(self, X, y):
+        return self.model.score(X, y)
