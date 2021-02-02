@@ -74,10 +74,9 @@ class Tokenizer:
         for idx, row in self.df.iterrows():
             self.df.at[idx, self.number_vector_col] = []
             for word in row[self.token_list_col]:
-                # row[self.number_vector_col].append(self.vocab_list.index(word))
                 self.df.loc[idx, self.number_vector_col].append(self.vocab_list.index(word))
 
-    def add_input_vector(self, ):
+    def add_input_vector(self):
         self.df[self.input_vector_col] = np.nan
         self.df[self.input_vector_col] = self.df[self.input_vector_col].astype("object")
         for idx, row in self.df.iterrows():

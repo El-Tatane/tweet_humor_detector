@@ -23,10 +23,10 @@ class LabelEncoder:
     def decode(self, int_list):
         raise NotImplementedError
         # a finir
-        if isinstance(int_list, int):
-            int_list = [int_list]
-
-        res = []
-
-        for word in int_list:
-            res.append()
+        # if isinstance(int_list, int):
+        #     int_list = [int_list]
+        #
+        # res = []
+        #
+        # for word in int_list:
+        #     res.append()
