@@ -79,3 +79,13 @@ y_test_pred = bst.predict(dtest)
 from sklearn.metrics import accuracy_score
 print(accuracy_score(y_train, y_train_pred))
 print(accuracy_score(y_test, y_test_pred))
+
+
+xb_model = my_lib.model.Xgboost(X_train, y_train, X_test, y_test)
+xb_model.fit()
+y_train_pred, y_test_pred = xb_model.predict()
+train_score, test_score = xb_model.score()
+
+print(train_score)
+print(test_score)
+
