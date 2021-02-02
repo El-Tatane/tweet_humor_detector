@@ -53,39 +53,47 @@ print("start train")
 # reg = LazyClassifier()
 # model, pred = reg.fit(np.array(X_train), np.array(X_test), np.array(y_train), np.array(y_test))
 # print(model)
-import xgboost as xgb
-import numpy as np
-
-print(np.array(X_train).shape, np.array(y_train).shape)
-print(np.array(X_test).shape, np.array(y_test).shape)
-
-label_train = np.array(y_train)
-dtrain = xgb.DMatrix(np.array(X_train), label=label_train)
-
-label_test = np.array(y_test)
-dtest = xgb.DMatrix(np.array(X_test), label=label_test)
-
-
-param = {'max_depth': 2, 'eta': 1, 'objective': 'multi:softmax', "num_class": 4}
-param['nthread'] = 4
-# param['eval_metric'] = 'auc'
-evallist = [(dtest, 'eval'), (dtrain, 'train')]
-
-
-num_round = 10
-bst = xgb.train(param, dtrain, num_round, evallist)
-y_train_pred = bst.predict(dtrain)
-y_test_pred = bst.predict(dtest)
-from sklearn.metrics import accuracy_score
-print(accuracy_score(y_train, y_train_pred))
-print(accuracy_score(y_test, y_test_pred))
+# import xgboost as xgb
+# import numpy as np
+#
+# print(np.array(X_train).shape, np.array(y_train).shape)
+# print(np.array(X_test).shape, np.array(y_test).shape)
+#
+# label_train = np.array(y_train)
+# dtrain = xgb.DMatrix(np.array(X_train), label=label_train)
+#
+# label_test = np.array(y_test)
+# dtest = xgb.DMatrix(np.array(X_test), label=label_test)
+#
+#
+# param = {'max_depth': 2, 'eta': 1, "num_class": 4}
+# param['nthread'] = 4
+#
+#
+# num_round = 10
+# bst = xgb.train(param, dtrain, num_round)
+# y_train_pred = bst.predict(dtrain)
+# y_test_pred = bst.predict(dtest)
+# from sklearn.metrics import accuracy_score
+# print(accuracy_score(y_train, y_train_pred))
+# print(accuracy_score(y_test, y_test_pred))
 
 
-xb_model = my_lib.model.Xgboost(X_train, y_train, X_test, y_test)
-xb_model.fit()
-y_train_pred, y_test_pred = xb_model.predict()
-train_score, test_score = xb_model.score()
+# xb_model = my_lib.model.XGBoost()
+# xb_model.fit(X_train, y_train)
+# print(xb_model.score(X_train, y_train))
+# print(xb_model.score(X_test, y_test))
 
-print(train_score)
-print(test_score)
+# architecture = [{"units": 256, "activation": "relu"},
+#                 {"units": 128, "activation": "relu"},
+#                 {"units": 4, "activation": "softmax"}]
+#
+# nn_model = my_lib.model.NeuralNetwork(architecture, 4)
+# nn_model.fit(X_train, y_train, epoch=120)
+# print(nn_model.score(X_train, y_train))
+# print(nn_model.score(X_test, y_test))
 
+ada_boost_model = my_lib.model.AdaBoostClassifier()
+ada_boost_model.fit(X_train, y_train)
+print(ada_boost_model.score(X_train, y_train))
+print(ada_boost_model.score(X_test, y_test))
