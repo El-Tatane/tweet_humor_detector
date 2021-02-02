@@ -31,11 +31,51 @@ for idx, row in df_X_train.iterrows():
 for idx, row in df_X_test.iterrows():
     X_test.append(row["input_vector"])
 
-svm_model = my_lib.model.SVM()
-svm_model.fit(X_train, y_train)
-print(svm_model.score(X_train, y_train))
-print(svm_model.score(X_test, y_test))
+# svm_model = my_lib.model.SVM()
+# svm_model.fit(X_train, y_train)
+# print(svm_model.score(X_train, y_train))
+# print(svm_model.score(X_test, y_test))
 
-# df = pipeline.remove_useless_col(raw_df, keep_col_list=["is_irrelevant", "input_vector"])
+# print("start train")
+# rf_model = my_lib.model.HyperOptimizedRandomForest()
+# rf_model.fit(X_train, y_train)
+# print(rf_model.score(X_train, y_train))
+# print(rf_model.score(X_test, y_test))
+
+print("start train")
+# elastic_model = my_lib.model.HyperOptimizedElasticNet()
+# elastic_model.fit(X_train, y_train)
+# print(elastic_model.score(X_train, y_train))
+# print(elastic_model.score(X_test, y_test))
+
+# from lazypredict.Supervised import LazyClassifier
+# import numpy as np
+# reg = LazyClassifier()
+# model, pred = reg.fit(np.array(X_train), np.array(X_test), np.array(y_train), np.array(y_test))
+# print(model)
+import xgboost as xgb
+import numpy as np
+
+print(np.array(X_train).shape, np.array(y_train).shape)
+print(np.array(X_test).shape, np.array(y_test).shape)
+
+label_train = np.array(y_train)
+dtrain = xgb.DMatrix(np.array(X_train), label=label_train)
+
+label_test = np.array(y_test)
+dtest = xgb.DMatrix(np.array(X_test), label=label_test)
 
 
+param = {'max_depth': 2, 'eta': 1, 'objective': 'multi:softmax', "num_class": 4}
+param['nthread'] = 4
+# param['eval_metric'] = 'auc'
+evallist = [(dtest, 'eval'), (dtrain, 'train')]
+
+
+num_round = 10
+bst = xgb.train(param, dtrain, num_round, evallist)
+y_train_pred = bst.predict(dtrain)
+y_test_pred = bst.predict(dtest)
+from sklearn.metrics import accuracy_score
+print(accuracy_score(y_train, y_train_pred))
+print(accuracy_score(y_test, y_test_pred))
