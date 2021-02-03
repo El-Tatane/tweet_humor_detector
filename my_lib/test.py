@@ -13,7 +13,7 @@ raw_df.head()
 
 
 
-# df = pipeline.remove_useless_col(raw_df, keep_col_list=["is_irrelevant", "input_vector"])
+
 df = pipeline.remove_useless_col(raw_df, keep_col_list=["label", "input_vector"])
 train_data, test_data = pipeline.split_data(df)
 print(f"SHAPE -> train : {train_data.shape}, test : {test_data.shape}")

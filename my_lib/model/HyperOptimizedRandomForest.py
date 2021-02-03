@@ -3,6 +3,9 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import KFold
 import pandas as pd
 from .ModelBase import ModelBase
+from sklearn.utils._testing import ignore_warnings
+from sklearn.exceptions import ConvergenceWarning
+import warnings
 
 
 class HyperOptimizedRandomForest(ModelBase):
@@ -14,11 +17,13 @@ class HyperOptimizedRandomForest(ModelBase):
             'max_depth': [2, 5, 7, 10, 15, 20]
         } if param_grid is None else param_grid
 
-
+    @ignore_warnings(category=ConvergenceWarning)
     def fit(self, X, y):
-        self.clf = RandomForestClassifier()
-        self.grid_clf = GridSearchCV(self.clf, self.param_grid)
-        self.grid_clf.fit(X, y)
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=ConvergenceWarning)
+            self.clf = RandomForestClassifier()
+            self.grid_clf = GridSearchCV(self.clf, self.param_grid)
+            self.grid_clf.fit(X, y)
 
     def predict(self, X):
         return self.grid_clf.predict(X)

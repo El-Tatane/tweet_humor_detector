@@ -6,20 +6,20 @@ import numpy as np
 class NeuralNetwork(ModelBase):
 
 
-    def __init__(self, architecture: list, num_classes, optimizer="adam", loss="categorical_crossentropy"):
+    def __init__(self, architecture: list, num_class, optimizer="adam", loss="categorical_crossentropy"):
         """
 
         :param architecture: (unit, activation), soft_max activation for last dense
 
         """
 
-        assert num_classes == architecture[-1]["units"]
+        assert num_class == architecture[-1]["units"]
 
         super().__init__()
         self.nn = []
         for dense_dict in architecture:
             self.nn.append(tf.keras.layers.Dense(**dense_dict))
-        self.num_classes = num_classes
+        self.num_classes = num_class
         self.model = tf.keras.Sequential(self.nn)
         self.model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
 

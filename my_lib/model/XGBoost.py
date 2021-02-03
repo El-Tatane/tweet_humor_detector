@@ -6,9 +6,10 @@ from sklearn.metrics import accuracy_score
 
 class XGBoost(ModelBase):
 
-    def __init__(self, params=None, num_round=10):
+    def __init__(self, num_class, params=None, num_round=10):
         super().__init__()
-        self.param = {'max_depth': 2, 'eta': 1, 'objective': 'multi:softmax', "num_class": 4, 'nthread': 4} if params is None else params
+        self.param = {'max_depth': 2, 'eta': 1, 'nthread': 4} if params is None else params
+        self.param["num_class"] = num_class
         self.num_round = num_round
 
     def fit(self, X, y):
