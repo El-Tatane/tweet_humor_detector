@@ -3,6 +3,7 @@ from .processing import *
 from .model import *
 import pandas as pd
 import numpy as np
+from gensim.models.word2vec import Word2Vec
 
 
 class Pipeline:
@@ -10,13 +11,16 @@ class Pipeline:
     def __init__(self):
         pass
 
-    def load_data(self):
+    def load_data(self, is_test=False):
         # lecture fichier
         df_data = pd.read_fwf("/data/train.txt", index_col=False, names=['annot', 'tweet'])
 
         df_data["label"] = df_data.apply(lambda row: row["annot"].split(",")[1], axis="columns")
         df_data["enterprise"] = df_data.apply(lambda row: row["annot"].split(",")[2][:-1], axis="columns")
         df_data.drop("annot", axis="columns", inplace=True)
+
+        if is_test is True:
+            df_data = df_data[0:500]
         return df_data
 
     def encode_to_category(self, df_data):
@@ -31,24 +35,34 @@ class Pipeline:
         df_data = self.tokenizer.fit(token_list)
         return df_data
 
-    def get_train_test(self, df):
-        df = remove_useless_col(df, keep_col_list=["label", "input_vector"])
+    def get_train_test(self, df, input_col="input_vector", filter_label_list=None, true_output_list=None):
+
+        if filter_label_list is not None:
+            df = df.loc[df["label"].isin(filter_label_list), ["label", input_col]]
+
         train_data, test_data = split_data(df)
 
-        df_X_train = train_data.loc[train_data["label"] > 1, ["input_vector"]]
-        y_train = np.array([int(el) for el in train_data[train_data["label"] > 1]["label"].values])
-        df_X_test = test_data.loc[test_data["label"] > 1, ["input_vector"]]
-        y_test = np.array([int(el) for el in test_data[test_data["label"] > 1]["label"].values])
+        df_X_train = train_data.loc[:, [input_col]]
+        if true_output_list is None:
+            y_train = train_data["label"].values
+        else:
+            y_train = np.array([1 if el in true_output_list else 0 for el in train_data["label"].values])
+
+        df_X_test = test_data.loc[:, [input_col]]
+        if true_output_list is None:
+            y_test = test_data["label"].values
+        else:
+            y_test = np.array([1 if el in true_output_list else 0 for el in test_data["label"].values])
 
         X_train = []
         X_test = []
         for idx, row in df_X_train.iterrows():
-            X_train.append(row["input_vector"])
+            X_train.append(row[input_col])
 
         for idx, row in df_X_test.iterrows():
-            X_test.append(row["input_vector"])
+            X_test.append(row[input_col])
 
-        return np.array(X_train), np.array(X_test), y_train, y_test
+        return np.array(X_train).astype("int"), np.array(X_test).astype("int"), y_train.astype("int"), y_test.astype("int")
 
     def train_model(self, model_dict, X_train, y_train, X_test=None, y_test=None):
         referential_model_dict = {"adaboost": AdaBoostClassifier, "elastic": HyperOptimizedElasticNet,
@@ -67,3 +81,14 @@ class Pipeline:
                 print(f"test score: {round(test_score, 5)}")
             print("")
 
+    def train_embedding_words(self, df, vector_size=100, embedding_type="CBOW", word_max_number=160):
+        ref_embedding = {"skip-gram": 1,  "CBOW": 0}
+        embedding_type = ref_embedding[embedding_type]
+
+        sentence_list = [sentence.split(" ") for sentence in df["token_list"].values]
+
+        model_skip_gram = Word2Vec(sentences=sentence_list, window=5, size=vector_size, min_count=1, sg=embedding_type)
+        df["embedding_vector"] = df.apply(lambda row: [model_skip_gram[word] for word in row["token_list"].split(" ")] + [], axis=1)
+        df["embedding_vector"] = df.apply(lambda row: row["embedding_vector"] + [[0] * vector_size] * (word_max_number - len(row["embedding_vector"])), axis=1)
+
+        return df
