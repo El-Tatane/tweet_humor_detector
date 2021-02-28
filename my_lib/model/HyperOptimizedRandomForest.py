@@ -13,8 +13,8 @@ class HyperOptimizedRandomForest(ModelBase):
     def __init__(self, param_grid=None):
         super().__init__()
         self.param_grid = {
-            'n_estimators': [10, 50, 100, 120, 150, 200],
-            'max_depth': [2, 5, 7, 10, 15, 20]
+            'n_estimators': [10, 50, 100, 150, 200],
+            'max_depth': [2, 5, 7, 10]
         } if param_grid is None else param_grid
 
     @ignore_warnings(category=ConvergenceWarning)

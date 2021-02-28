@@ -10,7 +10,7 @@ class Tokenizer:
     split_regex = [".", ",", "!", "?", "'", '"', ";", ":"]
 
     def __init__(self, df, params_dict=None, input_col="tweet", token_list_col="token_list",
-                 number_vector_col="number_vector", input_vector_col="input_vector"):
+                 number_vector_col="number_vector", input_vector_col="input_vector", clean_tweet="clean_tweet"):
 
         assert input_col in df, f"Column {input_col} didn't exist in df"
         assert len(df), "No data in df"
@@ -21,7 +21,7 @@ class Tokenizer:
         self.token_list_col = token_list_col
         self.number_vector_col = number_vector_col
         self.input_vector_col = input_vector_col
-
+        self.clean_tweet = clean_tweet
 
     def fit(self, token_list=None):
         if token_list is None:
@@ -34,7 +34,8 @@ class Tokenizer:
 
     def prepare(self, token_list):
 
-        self.df[self.token_list_col] = self.df[self.input_col]
+        self.df[self.token_list_col] = self.df[self.input_col].apply(lambda x: x.lower())
+        self.df[self.clean_tweet] = "nas"
 
         for idx, row in self.df.iterrows():
             if "smiley" in token_list:
@@ -45,9 +46,9 @@ class Tokenizer:
             for char in Tokenizer.split_regex:
                 row[self.token_list_col] = row[self.token_list_col].replace(char, f" {char} ")
 
+            self.df.at[idx, self.clean_tweet] = row[self.token_list_col]
             row[self.token_list_col] = row[self.token_list_col].split(" ")
             row[self.token_list_col] = [el for el in row[self.token_list_col] if el != ""]
-
 
 
     def token_url(self, input_str):

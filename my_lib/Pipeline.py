@@ -12,7 +12,7 @@ class Pipeline:
         pass
 
     def load_data(self, is_test=False):
-        # lecture fichier
+
         df_data = pd.read_fwf("/data/train.txt", index_col=False, names=['annot', 'tweet'])
 
         df_data["label"] = df_data.apply(lambda row: row["annot"].split(",")[1], axis="columns")
@@ -35,7 +35,7 @@ class Pipeline:
         df_data = self.tokenizer.fit(token_list)
         return df_data
 
-    def get_train_test(self, df, input_col="input_vector", filter_label_list=None, true_output_list=None):
+    def get_train_test(self, df, input_col="input_vector", filter_label_list=None, true_output_list=None, flatten=False):
 
         if filter_label_list is not None:
             df = df.loc[df["label"].isin(filter_label_list), ["label", input_col]]
@@ -62,7 +62,14 @@ class Pipeline:
         for idx, row in df_X_test.iterrows():
             X_test.append(row[input_col])
 
-        return np.array(X_train).astype("int"), np.array(X_test).astype("int"), y_train.astype("int"), y_test.astype("int")
+        X_train = np.array(X_train).astype("int")
+        X_test = np.array(X_test).astype("int")
+
+        if flatten is True:
+            X_train = X_train.reshape(X_train.shape[0], X_train.shape[1] * X_train.shape[2])
+            X_test = X_test.reshape(X_test.shape[0], X_test.shape[1] * X_test.shape[2])
+
+        return X_train, X_test, y_train.astype("int"), y_test.astype("int")
 
     def train_model(self, model_dict, X_train, y_train, X_test=None, y_test=None):
         referential_model_dict = {"adaboost": AdaBoostClassifier, "elastic": HyperOptimizedElasticNet,
