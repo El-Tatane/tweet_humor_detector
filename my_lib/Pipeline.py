@@ -35,24 +35,24 @@ class Pipeline:
         df_data = self.tokenizer.fit(token_list)
         return df_data
 
-    def get_train_test(self, df, input_col="input_vector", filter_label_list=None, true_output_list=None, flatten=False):
+    def get_train_test(self, df, input_col="input_vector", filter_label_list=None, output_col="label", true_output_list=None, flatten=False):
 
         if filter_label_list is not None:
-            df = df.loc[df["label"].isin(filter_label_list), ["label", input_col]]
+            df = df.loc[df[output_col].isin(filter_label_list), [output_col, input_col]]
 
         train_data, test_data = split_data(df)
 
         df_X_train = train_data.loc[:, [input_col]]
         if true_output_list is None:
-            y_train = train_data["label"].values
+            y_train = train_data[output_col].values
         else:
-            y_train = np.array([1 if el in true_output_list else 0 for el in train_data["label"].values])
+            y_train = np.array([1 if el in true_output_list else 0 for el in train_data[output_col].values])
 
         df_X_test = test_data.loc[:, [input_col]]
         if true_output_list is None:
-            y_test = test_data["label"].values
+            y_test = test_data[output_col].values
         else:
-            y_test = np.array([1 if el in true_output_list else 0 for el in test_data["label"].values])
+            y_test = np.array([1 if el in true_output_list else 0 for el in test_data[output_col].values])
 
         X_train = []
         X_test = []
@@ -76,17 +76,23 @@ class Pipeline:
                                   "rf": HyperOptimizedRandomForest, "nn": NeuralNetwork, "svm": SVM, "xgboost": XGBoost}
         assert set(model_dict).issubset(set(referential_model_dict)), "Error in model_dict train_model"
 
-        res = {}
+        model_result_dict = {}
+        score_dict = {}
+        print("model")
         for model_name, model_param_dict in model_dict.items():
+            
             print(f"train model: {model_name}")
-            res[model_name] = referential_model_dict[model_name](**model_param_dict)
-            res[model_name].fit(X_train, y_train)
-            train_score = res[model_name].score(X_train, y_train)
+            model_result_dict[model_name] = referential_model_dict[model_name](**model_param_dict)
+            model_result_dict[model_name].fit(X_train, y_train)
+            train_score = model_result_dict[model_name].score(X_train, y_train)
+            score_dict[model_name] = [train_score]
             print(f"train score: {round(train_score, 5)}")
             if X_test is not None:
-                test_score = res[model_name].score(X_test, y_test)
+                test_score = model_result_dict[model_name].score(X_test, y_test)
                 print(f"test score: {round(test_score, 5)}")
+                score_dict[model_name].append(test_score)
             print("")
+        return model_result_dict, score_dict
 
     def train_embedding_words(self, df, vector_size=100, embedding_type="CBOW", word_max_number=160):
         ref_embedding = {"skip-gram": 1,  "CBOW": 0}

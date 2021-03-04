@@ -17,3 +17,4 @@ class AdaBoostClassifier(ModelBase):
 
     def score(self, X, y):
         return self.model.score(X, y)
+

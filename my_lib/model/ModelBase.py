@@ -1,7 +1,11 @@
+import dill
+import os
+
+
 class ModelBase:
 
     def __init__(self):
-        pass
+        self.model = None
 
     def fit(self, X, y):
         raise NotImplementedError()
@@ -11,3 +15,9 @@ class ModelBase:
 
     def score(self, X, y):
         raise NotImplementedError()
+
+    def save(self, filename):
+        return dill.dump(self.model, open(os.path.join("/app", "models", filename), "wb"))
+
+    def load(self, filename):
+        self.model = dill.load(open(os.path.join("/app", "models", filename), "wb"))

@@ -1,10 +1,14 @@
 from . import ModelBase
 from transformers import pipeline
+from sklearn.metrics import accuracy_score
+import numpy as np
+
 
 class BERT(ModelBase):
 
     def __init__(self):
-        pass
+        super().__init__()
+        self.classifier = pipeline("sentiment-analysis")
 
     def fit(self, X, y):
         print("already fit")
@@ -14,30 +18,24 @@ class BERT(ModelBase):
         """
 
         Args:
-            X (str): string sentence
+            X (str or string list): string sentence
 
         Returns:
 
         """
-        raise NotImplementedError()
+        res: dict = self.classifier(X)
+        ref = ['POSITIVE', 'NEUTRAL', 'NEGATIVE']
+        return [ref.index(el_dict["label"]) for el_dict in res]
 
     def score(self, X, y):
-        raise NotImplementedError()
 
-    # # Define the training parameters
-    # num_samples = [1000, 5000, 10000, 100000, 500000]
-    # epochs = 3
-    # patience = 3
-    # batch_size = 64
-    # seq_len = 30
-    # lr = 2e-5
-    # clip = 1.0
-    # log_level = logging.DEBUG
-    #
-    # # Run!
-    # result_bert, model_trained_bert = train_cycles(train_df['text'], train_df['label'], vocab, num_samples, 'BERT',
-    #                                                epochs, patience, batch_size, seq_len, lr, clip, log_level)
-    #
-    # # Save the model and show the result
-    # torch.save(model_trained_lstm.state_dict(), output_dir + 'stocktwit_bert.dict')
-    # result_bert
+        y_pred = []
+        for i, X_el in enumerate(X):
+            if i % 100 == 0:
+                print(i, end="")
+            res: int = self.predict(X_el)[0]
+
+            y_pred.append(res)
+        y_pred = np.array(y_pred)
+
+        return accuracy_score(list(y), list(y_pred))
