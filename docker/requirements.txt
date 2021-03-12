@@ -16,3 +16,6 @@ gensim==3.8.3
 transformers==3.3.1
 wordcloud==1.8.0
 tf-models-official==2.3.0
+dill==0.3.3
+transformers==3.3.1
+ipywidgets==7.6.3
